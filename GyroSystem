@@ -1,0 +1,43 @@
+package org.usfirst.frc.team6884.robot.subsystems;
+
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+
+public class GyroSystem extends DriveSystem {
+	
+	ADXRS450_Gyro gyro;  
+	boolean goalReached; 
+	double kP = .03; //rate of how fast the gyro will adjust angle
+	
+	public GyroSystem() {
+		gyro = new ADXRS450_Gyro();
+	}
+	public void turn90Clockwise() {
+		double angle = Math.round(gyro.getAngle());
+		boolean goalReached = false;
+		if(angle >= 90)
+			goalReached = true;
+		else if(!goalReached) {
+			drive(.2,angle * kP);
+		
+		}
+	}
+	public void turn90CounterClockwise() {
+		double angle = Math.round(gyro.getAngle());
+		boolean goalReached = false;
+		if(angle >= 90)
+			goalReached = true;
+		else if(!goalReached) {
+			drive(.2, angle * kP );
+		} 
+	}
+	
+	public void driveStraight() {
+		boolean driveStraight = false;
+		double angle = Math.round(gyro.getAngle());
+		if(angle == 0)
+			driveStraight = true;
+		else if(!driveStraight)
+			drive(.1,angle * kP);
+	}
+	
+}
