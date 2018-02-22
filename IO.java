@@ -7,10 +7,13 @@
 
 package org.usfirst.frc.team6884.robot;
 
+import org.usfirst.frc.team6884.robot.commands.ElevatorDown;
+import org.usfirst.frc.team6884.robot.commands.ElevatorUp;
 import org.usfirst.frc.team6884.robot.commands.Intake;
 import org.usfirst.frc.team6884.robot.commands.ReverseIntake;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
@@ -45,9 +48,11 @@ public class OI {
 	// Start the command when the button is released and let it run the command
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
-	
-	public static JoystickButton intakeButton;
-	public static JoystickButton reverseIntakeButton;
+
+	public static Button elevatorDownButton;
+	public static Button elevatorUpButton;
+	public static Button intakeButton;
+	public static Button reverseIntakeButton;
 
 	
 	public static Joystick j1;
@@ -55,13 +60,17 @@ public class OI {
 	
 	
 	public static void init() {
-		
+		j1 = new Joystick(0);
+		elevatorDownButton = new JoystickButton(j1,2);
+		elevatorUpButton = new JoystickButton(j1,1);
 		intakeButton = new JoystickButton(j1,5);
 		reverseIntakeButton = new JoystickButton(j1,6);
 		
 		
 		intakeButton.whileHeld(new Intake());
 		reverseIntakeButton.whileHeld(new ReverseIntake());
+		elevatorDownButton.whileHeld(new ElevatorUp());
+		elevatorUpButton.whileHeld(new ElevatorDown());
 		
 	}
 }
