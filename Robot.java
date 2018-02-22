@@ -7,19 +7,22 @@
 
 package org.usfirst.frc.team6884.robot;
 
-import org.usfirst.frc.team6884.robot.commands.Drive;
-import org.usfirst.frc.team6884.robot.subsystems.DriveSystem;
-import org.usfirst.frc.team6884.robot.subsystems.EncoderSystem;
-import org.usfirst.frc.team6884.robot.subsystems.GyroSystem;
-import org.usfirst.frc.team6884.robot.subsystems.IntakeSystem;
-
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import org.usfirst.frc.team6884.robot.commands.Drive;
+import org.usfirst.frc.team6884.robot.commands.ElevatorDown;
+import org.usfirst.frc.team6884.robot.commands.ElevatorUp;
+import org.usfirst.frc.team6884.robot.commands.Intake;
+import org.usfirst.frc.team6884.robot.commands.ReverseIntake;
+import org.usfirst.frc.team6884.robot.subsystems.DriveSystem;
+
+import org.usfirst.frc.team6884.robot.subsystems.ElevatorSystem;
+import org.usfirst.frc.team6884.robot.subsystems.EncoderSystem;
+import org.usfirst.frc.team6884.robot.subsystems.IntakeSystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,29 +32,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-	//Create Subystems Here
-	public static IntakeSystem intake;
 	public static DriveSystem drive;
-	public static GyroSystem gyro;
-	public static EncoderSystem encoder;
-	
-	
-	//public static ElevatorSystem elevator;
-			
-	Command cDrive;
 	public static OI m_oi;
+	public static RobotMap map;
+	public static EncoderSystem encoder;
+	public static ElevatorSystem elevator;
+	public static IntakeSystem intake;
 	
-	
-	DigitalInput switchLeft;
-	DigitalInput switchRight;
-	int state;
-	double encoderDistance;
-	
+	Command cDrive;
+	ElevatorUp cElevatorUp;
+	ElevatorDown cElevatorDown;
+	//Intake cIntake;
+	//ReverseIntake cReverseIntake;
 
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
-	
-	
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -59,23 +54,21 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		//Init Subystems Here
-		intake = new IntakeSystem();
-		drive = new DriveSystem();
-		gyro = new GyroSystem();
-		encoder = new EncoderSystem();
-	
-		//elevator = new ElevatorSystem();
-		
 		m_oi = new OI();
-		switchLeft = new DigitalInput(RobotMap.SWITCH_LEFT);
-		switchRight = new DigitalInput(RobotMap.SWITCH_RIGHT);
+		drive = new DriveSystem();
+		cDrive = new Drive();
+		map = new RobotMap();
+		encoder = new EncoderSystem();
+		elevator = new ElevatorSystem();
+		//cElevatorDown = new ElevatorDown();
+		//cElevatorUp = new ElevatorUp();
+		//cIntake = new Intake();
+		//cReverseIntake = new ReverseIntake();
+		intake = new IntakeSystem();
 		
 		//m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
-		OI.init();
-		
 	}
 
 	/**
@@ -107,12 +100,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = m_chooser.getSelected();
-		
-		state = 1;
-		String switchPos;
-		
-		switchPos = DriverStation.getInstance().getGameSpecificMessage();
-		//then use charAt(index) method to check which is ours, returns 'L' or 'R'
 
 		/*
 		 * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -125,7 +112,6 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.start();
 		}
-		
 	}
 
 	/**
@@ -133,70 +119,11 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		//second test
 		Scheduler.getInstance().run();
-		drive.drive(.3, 0);
-		gyro.driveStraight();
-		encoderDistance = encoder.distance();
-		System.out.print(encoder.distance());
-		//end second test
-		/*if(state == 1)
-			if(encoder.Distance() <= 15) {
-				drive.drive(.4,0);
-				gyro.driveStraight();
-			}
-			else {
-				state = 2;
-				encoder.reset();
-			}
-		//the system updates periodically (state variable still keeps value since it is in autoINIT)
-		//assuming left1 is ours and we start on left 
-		else if(state == 2) {
-			gyro.turn90Clockwise();
-			state = 3;
-			encoder.reset();
-		}
-		else if(state == 3) 
-			if(encoder.distance() <= 2) {
-				drive.drive(.2,0);
-				gyro.driveStraight();
-			}
-			else {
-				state = 4;
-				encoder.reset();
-			}
-		else if(state == 4) {
-			intake.reverseIntake();
-			state = 5;
-			encoder.reset();
-		}
-		//going backwards that short distance
-		else if(state == 5)
-			if(encoder.distance() <= 2) {
-				drive.drive(-.2,0); // go backwards
-				gyro.driveStraight();
-			}
-			else {
-				state = 6;
-				encoder.reset();
-			}
-		//turning counter clockwise from being backwards
-		else if(state == 6) {
-			gyro.turn90CounterClockwise();
-			state = 7; 
-			encoder.reset();
-		}
-		else if(state == 7)
-			if(encoder.distance() <= 27.125) //not completely sure about this d
-				drive.reduceSpeed();
-			else {
-				state = 8;
-				encoder.reset();
-			}
 		
-			*/ 	
-			
-	
+		
+		//if (encoder.getD1() >= 4 )
+	//		drive.drive(-.3,0);
 	}
 
 	@Override
@@ -208,12 +135,11 @@ public class Robot extends TimedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
-		cDrive = new Drive();
-		//This is to test the encoders
 		
-		
-		
-		
+		//cElevatorUp.start();
+		//cElevatorDown.start();
+		//cIntake.start();
+		//cReverseIntake.start();
 		
 	}
 
@@ -223,23 +149,25 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		//test one
-		cDrive.start(); //this is the arcadeDrive
-		System.out.println(encoder.distance());
-		//test one ends
+		cDrive.start();
+		//cElevatorUp.start();
+		//cElevatorDown.start();
+		//cIntake.start();
+		//cReverseIntake.start();
 		
-		//test three
+		elevator.getML();
+		elevator.getMR();
+		
 		/*
-		if(switchLeft.get() && !switchRight.get())
-			System.out.print("LEFT SWITCH");
-		else if(!switchLeft.get() && switchRight.get())
-			System.out.print("RIGHT SWITCH");
-		else if(!switchLeft.get() && !switchRight.get())
-			System.out.print("CENTER SWITCH");
-		else
-			System.out.print("error"); 
+			cDrive.start();
+		SmartDashboard.putNumber("Encoder Distance", encoder.getD1());
+		SmartDashboard.putNumber("Encoder Rate", encoder.getD2());
+		
+		System.out.print(encoder.testA());
+		System.out.print(encoder.
+		testB());
 		*/
-		//test three ends
+		
 		
 		
 	}
@@ -249,27 +177,15 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void testPeriodic() {
-		
 	}
-	
-	
-	
-	//Create Getters Here for Commands
 	
 	public static DriveSystem getDrive() {
-		return drive; 
+		return drive;
 	}
-	
+	public static ElevatorSystem getElevator() {
+		return elevator;
+	}
 	public static IntakeSystem getIntake() {
-		
 		return intake;
 	}
-	
-	//public static ElevatorSystem() {
-	//	return elevator;
-	//}
-	
-	
-	
-	
 }
