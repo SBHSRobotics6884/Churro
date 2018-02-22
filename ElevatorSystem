@@ -1,0 +1,53 @@
+package org.usfirst.frc.team6884.robot.subsystems;
+
+import org.usfirst.frc.team6884.robot.RobotMap;
+
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class ElevatorSystem extends Subsystem {
+
+	public Spark leftElevator;
+	public Spark rightElevator;
+
+	
+	public ElevatorSystem() {
+		leftElevator = new Spark(RobotMap.L_ELEVATOR_MOTOR);
+		rightElevator = new Spark(RobotMap.R_ELEVATOR_MOTOR);
+		
+	}
+	public void getML() {
+		SmartDashboard.putBoolean("R ELEV", rightElevator.isAlive());
+	}
+	public  void getMR() {
+		SmartDashboard.putBoolean("L ELEV", leftElevator.isAlive());
+	}
+	
+	public void up(){
+		rightElevator.set(.5);
+		leftElevator.set(-.5);
+		
+	}
+	public void down(){
+		rightElevator.set(-.5);
+		leftElevator.set(.5);
+		
+	}
+	
+	public void stop(){
+		
+		leftElevator.set(0);
+		rightElevator.set(0);
+	}
+	
+	
+	
+
+	//for some reaon you need this
+	@Override
+	protected void initDefaultCommand() {
+		// TODO Auto-generated method stub
+		
+	} 
+}
